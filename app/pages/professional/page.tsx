@@ -99,18 +99,18 @@ export default function ProfessionalPage() {
     specialty: '',
   })
 
-  useEffect(() => {
-    const fetchProfissionais = async () => {
-      try {
-        const response = await axios.get<Profissional[]>(
-          'http://localhost:8080/professional',
-        )
-        setData(response.data)
-      } catch (error) {
-        console.error('Erro ao buscar profissionais:', error)
-      }
+  const fetchProfissionais = async () => {
+    try {
+      const response = await axios.get<Profissional[]>(
+        'http://localhost:8080/professional',
+      )
+      setData(response.data)
+    } catch (error) {
+      console.error('Erro ao buscar profissionais:', error)
     }
+  }
 
+  useEffect(() => {
     fetchProfissionais()
   }, [])
 
@@ -132,6 +132,7 @@ export default function ProfessionalPage() {
         specialty: '',
       })
       setIsAddPopupOpen(false)
+      fetchProfissionais()
     } catch (error) {
       console.error('Erro ao cadastrar profissional:', error)
     }

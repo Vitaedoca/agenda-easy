@@ -7,6 +7,8 @@ import CompactItem from '@/components/ui/compactItem'
 import { Button } from '@/components/ui/button'
 import { useState, useEffect } from 'react'
 import axios from 'axios'
+import Image from 'next/image'
+import imagemProfessional from '../../image/image-principal.png'
 
 interface ServiceData {
   serviceId: string
@@ -81,13 +83,41 @@ export default function Agenda() {
   }
 
   const handleConfirm = async () => {
+    if (
+      !selectedService ||
+      !selectedProfessional ||
+      !selectedDate ||
+      !selectedTime
+    ) {
+      setConfirmationMessage(
+        'Por favor, selecione todas as opções para confirmar o agendamento.',
+      )
+      return
+    }
+
     setShowModal(false)
     setLoading(true)
-    try {
-      // Simulando a chamada de API para agendar
-      await new Promise((resolve) => setTimeout(resolve, 3000))
 
-      setConfirmationMessage('Agendamento realizado com sucesso!')
+    try {
+      const appointmentData = {
+        userId: 1, // Passar o ID do usuário manualmente
+        professionalId: parseInt(selectedProfessional.professionalId),
+        serviceId: parseInt(selectedService.serviceId),
+        appointmentDate: selectedDate.toLocaleDateString('pt-BR'), // Formato brasileiro de data (DD/MM/YYYY)
+        horario: selectedTime,
+        status: 'A', // Status 'A' para ativo
+      }
+
+      const response = await axios.post(
+        'http://localhost:8080/appointments',
+        appointmentData,
+      )
+
+      if (response.status === 200) {
+        setConfirmationMessage('Agendamento realizado com sucesso!')
+      } else {
+        setConfirmationMessage('Falha ao realizar agendamento.')
+      }
     } catch (error) {
       console.error('Erro ao realizar agendamento:', error)
       setConfirmationMessage('Falha ao realizar agendamento.')
@@ -109,6 +139,11 @@ export default function Agenda() {
         <p className="text-slate-400 text-lg mb-1">Av. Marciano Pires, 2515</p>
         <p className="text-slate-400 text-lg mb-1">Matinha - Patrocínio</p>
         <p className="text-slate-400 text-lg"> (11)9000-0000</p>
+      </div>
+
+      <p className="m-4">Espaço</p>
+      <div className="flex items-center justify-center">
+        <Image src={imagemProfessional} alt="imagem" />
       </div>
 
       <div className="flex items-center space-x-4 m-5">
@@ -245,11 +280,11 @@ export default function Agenda() {
               xmlns="http://www.w3.org/2000/svg"
             >
               <path
-                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9765 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9765 100 50.5908ZM9.08145 50.5908C9.08145 73.0308 27.5601 91.5094 50 91.5094C72.4399 91.5094 90.9185 73.0308 90.9185 50.5908C90.9185 28.1509 72.4399 9.67227 50 9.67227C27.5601 9.67227 9.08145 28.1509 9.08145 50.5908Z"
                 fill="currentColor"
               />
               <path
-                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5535C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7236 75.2124 7.41289C69.5422 4.10218 63.2754 1.94025 56.7222 1.05117C51.7662 0.367569 46.7392 0.446728 41.8231 1.27887C39.3159 1.69443 37.8491 4.19778 38.4862 6.62326C39.1233 9.04874 41.607 10.4717 44.0871 10.107C48.304 9.47456 52.6143 9.48803 56.7869 10.1405C61.6689 10.8972 66.3369 12.5733 70.4865 15.0841C74.6361 17.5949 78.1955 20.8918 80.9415 24.7971C83.2763 28.0839 85.0136 31.6156 86.0915 35.3121C86.7361 37.6759 89.3423 38.944 91.7666 38.3069C92.4717 38.1274 93.1996 38.1024 93.9676 39.0409Z"
                 fill="currentFill"
               />
             </svg>
@@ -261,10 +296,9 @@ export default function Agenda() {
       {confirmationMessage && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-5 rounded-lg shadow-lg max-w-sm w-full">
-            <p className="text-lg font-bold mb-4">{confirmationMessage}</p>
-            <div className="flex items-center justify-center">
-              <Button onClick={() => setConfirmationMessage(null)}>Ok</Button>
-            </div>
+            <h2 className="text-lg font-bold mb-4">Confirmação</h2>
+            <p>{confirmationMessage}</p>
+            <Button onClick={() => setConfirmationMessage(null)}>Fechar</Button>
           </div>
         </div>
       )}
